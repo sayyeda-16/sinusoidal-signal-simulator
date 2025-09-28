@@ -60,8 +60,3 @@ The application is run as a Streamlit server, making it accessible through your 
 
 
 *A typical view of the application, showing the interactive sidebar and the dual-domain plots.*
-
-
-* **Kyle Siwazalian** - Primarily responsible for Sinusoidal Signal Function.
-* **Mohammad Taqi** - Primarily responsible for Time and Distance Domain Signal Generation.
-* **All Group Members** - Contributed to the video script and recording.
