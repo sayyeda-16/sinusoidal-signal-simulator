@@ -1,59 +1,67 @@
 # Sinusoidal Signal Interference Simulator
 
-This project is a Python program that simulates the interference of two sinusoidal signals in both the time and distance domains. It's a great example of using Python for scientific computing and data visualization.
+This project is a Python application that simulates the interference of two sinusoidal signals in both the time and distance domains, featuring an **interactive web UI built with Streamlit**. It demonstrates effective use of Python for scientific computing, data visualization, and building accessible, data-driven applications.
 
----
+***
 
 ### Project Description
 
-The program uses the **NumPy** library for efficient numerical calculations and **Matplotlib** to generate and display plots of the signals. The simulation is based on user-provided inputs for key signal characteristics such as amplitude, frequency, and phase shift.
+The application uses the **NumPy** library for efficient numerical calculations and **Matplotlib** for generating the simulation plots. The plots are seamlessly embedded into a user-friendly web interface via **Streamlit**.
 
 Key features include:
-* **User Input**: The program prompts the user to enter parameters for two individual signals.
-* **Signal Simulation**: It calculates the sum of the two signals in both the time and distance domains to simulate interference.
-* **Data Visualization**: It generates plots to visualize the individual signals and their resulting sum.
-* **Problem-Solving**: The project team initially planned to use C++ but transitioned to Python to overcome challenges with C++ plotting library setup, demonstrating adaptability and effective problem-solving skills.
+* **Interactive Web UI**: All signal parameters (Amplitude, Frequency, Phase, Fixed Time/Distance) are entered via a sidebar in the web application, allowing for real-time adjustments and simulation updates.
+* **Real-time Visualization**: The plots for individual signals and their resulting sum are updated instantly as the user modifies any input parameter.
+* **Dual Domain Simulation**: It calculates and plots the signal interference in both the **Time Domain** (Signal vs. Time) and the **Distance Domain** (Signal vs. Distance).
+* **Problem-Solving**: The project team initially planned to use C++ but transitioned to Python with Streamlit to overcome challenges with C++ plotting library setup, demonstrating adaptability and effective problem-solving skills in delivering a functional UI.
 
----
+***
+
+### Technologies Used
+
+| Technology | Purpose |
+| :--- | :--- |
+| **Python 3** | Core programming language |
+| **Streamlit** | Building the interactive web user interface |
+| **NumPy** | Efficient numerical array calculations |
+| **Matplotlib** | Generating the 2D plots for visualization |
+
+***
 
 ### Installation
 
-To run this program, you will need to have Python 3 installed on your system. You also need the required libraries, which can be installed via pip.
+To run this application, you will need to have Python 3 installed on your system.
 
-1.  Clone this repository or download the `main.py` file.
+1.  Clone this repository or download the `signal_simulator.py` file.
 2.  Install the necessary libraries by running the following command in your terminal:
     ```bash
-    pip install numpy matplotlib
+    pip install streamlit numpy matplotlib
     ```
 
----
+***
 
 ### Usage
 
-1.  Navigate to the directory containing the `main.py` file.
-2.  Run the program from your terminal:
-    ```bash
-    python main.py
-    ```
-3.  Follow the on-screen prompts to enter the parameters for each signal (amplitude, frequency, phase, time, and distance).
-4.  The program will generate and display a plot showing the two signals and their sum in both the time and distance domains.
+The application is run as a Streamlit server, making it accessible through your web browser.
 
----
+1.  Navigate to the directory containing the `main.py` file.
+2.  Run the application from your terminal:
+    ```bash
+    streamlit run main.py
+    ```
+3.  A web browser tab will automatically open, displaying the application.
+4.  Use the **sidebar inputs** to adjust the parameters for Signal 1 and Signal 2. The plots will update in real-time to show the interference results.
+
+***
 
 ### Screenshots
+<img width="2559" height="1244" alt="image" src="https://github.com/user-attachments/assets/16e90ff7-6834-4f30-9e46-80da13d57e28" />
+<img width="2559" height="1180" alt="image" src="https://github.com/user-attachments/assets/90f8d1a8-a2fc-4fc5-af36-597f840ce80f" />
 
-<img width="1768" height="478" alt="image" src="https://github.com/user-attachments/assets/2f219069-fdbd-4531-8183-5fe4d0a4a2cd" />
-<img width="1597" height="1003" alt="image" src="https://github.com/user-attachments/assets/5dfa3a64-cff9-484e-8434-8219635c3864" />
 
 
----
+*A typical view of the application, showing the interactive sidebar and the dual-domain plots.*
 
-### Contributions
 
-This project was a collaborative effort by Group 8 for the SOFE 2850U - Natural Foundations of Information Technology course at Ontario Tech University.
-
-* **Sayyeda Faruqui** - Primarily responsible for Time and Distance Domain Plotting Simulation.
-* **Kaira Subramaniam** - Primarily responsible for User Input Design and Time and Distance Plot Ranges.
 * **Kyle Siwazalian** - Primarily responsible for Sinusoidal Signal Function.
 * **Mohammad Taqi** - Primarily responsible for Time and Distance Domain Signal Generation.
 * **All Group Members** - Contributed to the video script and recording.
