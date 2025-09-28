@@ -1,104 +1,146 @@
-# Import the NumPy library for numerical operations
+import streamlit as st
 import numpy as np
-# Import the MatplotLib library for plotting
 import matplotlib.pyplot as plt
 
 
-# Define a function to calculate the value of a sinusoidal function signal at a given time(t) and distance(x) based on the parameters of a sine wave
-def sinusoidal_signal(A, f, phi, t, x): # The parameters A, f, phi, t, x are passed to the function and denote the amplitude, frequency, phase shift, time, and distance of the sine wave respectively
+# --- Signal Function ---
+# Define a function to calculate the value of a sinusoidal function signal at a given time(t) and distance(x)
+def sinusoidal_signal(A, f, phi, t, x):
+    # The speed of light is used for calculating the wave number (k)
+    c = 3e8
 
-    # Calculate the angular frequency of the sine wave
+    # Calculate the angular frequency of the sine wave (omega)
     omega = 2 * np.pi * f
-    # Calculate the wave number of the sine wave
-    k = 2 * np.pi * f / 3e8
+
+    # Calculate the wave number of the sine wave (k)
+    # k = omega / c = 2 * pi * f / c
+    k = 2 * np.pi * f / c
+
     # Return the value of the sine wave at the given time(t) and distance(x)
     return A * np.sin(k * x - omega * t + phi)
 
-# Define the main function
+
+# --- Main Streamlit App Function ---
 def main():
-    # Welcome message explaining the program to the user
-    print("\nWelcome to the Sinusoidal Signal Interference Simulator!")
-    print("\nThis program simulates the interference of two sinusoidal signals in both time and distance domains.")
-    print("\nYou will be prompted to enter the parameters for each signal.")
-    
-    # Get input parameters for signal 1. All values are type float.
-    A1 = float(input("Enter amplitude for signal D1 in volts: "))
-    f1 = float(input("Enter the fundamental frequency for signal D1 in Hz: "))
-    phi1 = float(input("Enter phase for signal D1 in radians: "))
-    t1 = float(input("Enter time for signal D1 in seconds: "))
-    x1 = float(input("Enter distance for signal D1 in meters: "))
+    st.title("Sinusoidal Signal Interference Simulator")
+    st.markdown("Simulate the interference of two sinusoidal signals in time and distance domains.")
 
-    # Get input parameters for signal 2
-    A2 = float(input("\nEnter amplitude for signal D2 in volts: "))
-    f2 = float(input("Enter the fundamental frequency for signal D2 in Hz: "))
-    phi2 = float(input("Enter phase for signal D2 in radians: "))
-    t2 = float(input("Enter time for signal D2 in seconds: "))
-    x2 = float(input("Enter distance for signal D2 in meters: "))
+    # --- Sidebar for Input Parameters ---
+    st.sidebar.header("Signal Parameters")
 
-    # Beginning Simulation Message
-    print("\nBeginning Simulation...You may need to refresh your output screen to see the plot.")
+    # --- Input for Signal 1 (D1) ---
+    st.sidebar.subheader("Signal 1 ($D_1$)")
+    A1 = st.sidebar.number_input("Amplitude $A_1$ (V)", value=1.0, min_value=0.01)
+    f1 = st.sidebar.number_input("Frequency $f_1$ (Hz)", value=10.0, min_value=0.01)
+    phi1 = st.sidebar.number_input("Phase $\phi_1$ (rad)", value=0.0)
+
+    # Only need *one* pair of fixed time/distance for the cross-domain plots
+    # For the TIME domain plot, we fix the distance x:
+    x_fixed_time = st.sidebar.number_input("Fixed Distance for Time Plot $x_1$ (m)", value=0.0, key='x1_fixed')
+    # For the DISTANCE domain plot, we fix the time t:
+    t_fixed_distance = st.sidebar.number_input("Fixed Time for Distance Plot $t_1$ (s)", value=0.0, key='t1_fixed')
+
+    st.sidebar.markdown("---")
+
+    # --- Input for Signal 2 (D2) ---
+    st.sidebar.subheader("Signal 2 ($D_2$)")
+    A2 = st.sidebar.number_input("Amplitude $A_2$ (V)", value=1.0, min_value=0.01)
+    f2 = st.sidebar.number_input("Frequency $f_2$ (Hz)", value=10.0, min_value=0.01)
+    phi2 = st.sidebar.number_input("Phase $\phi_2$ (rad)", value=np.pi)
+
+    # Use the same fixed time/distance variables for simplicity, as they define the *viewing point*
+    x_fixed_time_2 = st.sidebar.number_input("Fixed Distance for Time Plot $x_2$ (m)", value=0.0, key='x2_fixed')
+    t_fixed_distance_2 = st.sidebar.number_input("Fixed Time for Distance Plot $t_2$ (s)", value=0.0, key='t2_fixed')
+
+    # --- Simulation and Plotting ---
 
     # Define time and distance ranges for plotting
-    t_min = 0.0 # Start time of the simulation
-    t_max = 1.0 / min(f1, f2)  # End time of the simulation
-    x_min = 0.0 # Start distance of the simulation
-    x_max = 3e8 * t_max # End distance of the simulation
+    t_min = 0.0  # Start time of the simulation
+    # Determine the max time based on the lower frequency for at least one full cycle
+    try:
+        f_min = min(f1, f2)
+        if f_min <= 0:
+            t_max = 1.0
+        else:
+            # Plot for 2 cycles of the slowest wave
+            t_max = 2.0 / f_min
+    except:
+        t_max = 1.0  # Fallback
 
-    # Create an array of time values from t_min to t_max with a step size of 0.01
-    time = np.arange(t_min, t_max, 0.01)
-    # Calculate the distance corresponding to each time value, assuming the speed of light is 3e8 m/s
-    distance = 3e8 * time  
+    c = 3e8  # Speed of light
+    x_min = 0.0  # Start distance of the simulation
+    # The max distance corresponds to the distance light travels in t_max
+    x_max = c * t_max
 
-    # Calculate the time domain signal for signal 1 and 2 by calling the sinusoidal_signal function with the parameters A1, f1, phi1, time, and distance
-    signal1_time = sinusoidal_signal(A1, f1, phi1, time, x1) 
-    signal2_time = sinusoidal_signal(A2, f2, phi2, time, x2)
-    # Calculate the sum of the time domain signals by adding the two signals
-    sum_time = signal1_time + signal2_time 
+    # Create an array of time values for plotting
+    time = np.linspace(t_min, t_max, 500)  # Use linspace for a fixed number of points
 
-    # Calculate the distance domain signal for signal 1 and 2 by calling the sinusoidal_signal function with the parameters A1, f1, phi1, time, and distance
-    signal1_distance = sinusoidal_signal(A1, f1, phi1, t1, distance)
-    signal2_distance = sinusoidal_signal(A2, f2, phi2, t2, distance)
-    # Calculate the sum of the distance domain signals by adding the two signals
+    # Create an array of distance values for plotting
+    distance = np.linspace(x_min, x_max, 500)
+
+    # --- Time Domain Calculation ---
+    # Signal 1 and 2 at the fixed distance points (x_fixed_time, x_fixed_time_2) over time
+    signal1_time = sinusoidal_signal(A1, f1, phi1, time, x_fixed_time)
+    signal2_time = sinusoidal_signal(A2, f2, phi2, time, x_fixed_time_2)
+    sum_time = signal1_time + signal2_time
+
+    # --- Distance Domain Calculation ---
+    # Signal 1 and 2 at the fixed time points (t_fixed_distance, t_fixed_distance_2) over distance
+    signal1_distance = sinusoidal_signal(A1, f1, phi1, t_fixed_distance, distance)
+    signal2_distance = sinusoidal_signal(A2, f2, phi2, t_fixed_distance_2, distance)
     sum_distance = signal1_distance + signal2_distance
 
-    # Create a new figure
-    plt.figure()
+    # --- Plotting ---
 
-    # Create a subplot for the time domain signal
-    plt.subplot(2, 1, 1)
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
 
-    # Plot signal 1 in red, signal 2 in blue, and their sum in green
-    plt.plot(time, signal1_time, 'r-', label='Signal 1')
-    plt.plot(time, signal2_time, 'b-', label='Signal 2')
-    plt.plot(time, sum_time, 'g-', label='Sum')
+    # Time Domain Plot
+    ax1.plot(time, signal1_time, 'r-', label='$D_1$')
+    ax1.plot(time, signal2_time, 'b-', label='$D_2$')
+    ax1.plot(time, sum_time, 'g-', label='Sum ($D_1 + D_2$)', linewidth=2)
+    ax1.set_xlabel('Time (s)')
+    ax1.set_ylabel('Amplitude (V)')
+    ax1.set_title(f'Time Domain Signal Interference (at $x_1={x_fixed_time}$m, $x_2={x_fixed_time_2}$m)')
+    ax1.legend()
+    ax1.grid(True)
 
-    # Label the x-axis as time, y-axis as amplitude, and set the title as Time Domain
-    plt.xlabel('Time (s)')
-    plt.ylabel('Amplitude (V)')
-    plt.title('Time Domain')
+    # Distance Domain Plot
+    ax2.plot(distance, signal1_distance, 'r-', label='$D_1$')
+    ax2.plot(distance, signal2_distance, 'b-', label='$D_2$')
+    ax2.plot(distance, sum_distance, 'g-', label='Sum ($D_1 + D_2$)', linewidth=2)
+    ax2.set_xlabel('Distance (m)')
+    ax2.set_ylabel('Amplitude (V)')
+    ax2.set_title(f'Distance Domain Signal Interference (at $t_1={t_fixed_distance}$s, $t_2={t_fixed_distance_2}$s)')
+    ax2.legend()
+    ax2.grid(True)
 
-    # Show the legend for the plot
-    plt.legend()
+    plt.tight_layout()  # Adjust the layout of the plot to prevent overlapping of the subplots
 
-    # Create a subplot for the distance domain signal
-    plt.subplot(2, 1, 2)
+    st.header("Simulation Results")
+    st.pyplot(fig)  # Display the Matplotlib figure in Streamlit
 
-    # Plot signal 1 in red, signal 2 in blue, and their sum in green
-    plt.plot(distance, signal1_distance, 'r-', label='Signal 1')
-    plt.plot(distance, signal2_distance, 'b-', label='Signal 2')
-    plt.plot(distance, sum_distance, 'g-', label='Sum')
+    # --- Summary of Results ---
+    st.markdown("---")
+    st.subheader("Signal Value at Fixed Points")
 
-    # Label the x-axis as distance, y-axis as amplitude, and set the title as Distance Domain
-    plt.xlabel('Distance (m)')
-    plt.ylabel('Amplitude (V)')
-    plt.title('Distance Domain')
+    # Calculate and display the instantaneous value of the summed signal
+    # We'll use the user-defined fixed time/distance for this
 
-    # Show the legend for the plot
-    plt.legend()
+    # We need a single time and single distance for the final value.
+    t_instant = t_fixed_distance
+    x_instant = x_fixed_time
+
+    val1 = sinusoidal_signal(A1, f1, phi1, t_instant, x_instant)
+    val2 = sinusoidal_signal(A2, f2, phi2, t_instant, x_instant)
+    val_sum = val1 + val2
+
+    st.markdown(f"""
+    At **$t={t_instant}$ seconds** and **$x={x_instant}$ meters**:
+    * Signal $D_1$ Value: **{val1:.4f} V**
+    * Signal $D_2$ Value: **{val2:.4f} V**
+    * Sum ($D_1 + D_2$) Value: **{val_sum:.4f} V**
+    """)
 
 
-    plt.tight_layout() # Adjust the layout of the plot to prevent overlapping of the subplots
-    plt.show() # Show the plot
-    
-if __name__ == "__main__": # Check if the script is being run as the main program
-    main() # Call the main function
+if __name__ == "__main__":
+    main()
